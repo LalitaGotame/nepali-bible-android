@@ -16,6 +16,10 @@ Every push builds the app automatically. Open the **Actions** tab, click the lat
 You can also open this folder in Android Studio and use
 **Build → Generate App Bundles or APKs → Generate APKs**.
 
+## iPhone and iPad version
+The `docs` folder is the same app as a home-screen web app, published with GitHub Pages.
+Open the link in **Safari** → **Share** → **Add to Home Screen**. It works offline after the first visit.
+
 ## Credits
 Bible text: *पवित्र बाइबल* (Unlocked Literal Bible, Nepali), © 2019 Door43 World Missions
 Community, licensed CC BY-SA 4.0, from eBible.org. Fonts: Mukta and Noto Serif Devanagari

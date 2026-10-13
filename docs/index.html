@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8B1E2D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="बाइबल">
+<title>पवित्र बाइबल</title>
+<style>
+@font-face{font-family:"Mukta";src:url("fonts/Mukta-Medium.ttf");font-weight:400 600}
+@font-face{font-family:"Mukta";src:url("fonts/Mukta-Bold.ttf");font-weight:700 900}
+@font-face{font-family:"Noto Serif Devanagari";src:url("fonts/NotoSerifDevanagari.ttf");font-weight:100 900}
+</style>
+<style>
+:root{
+  --paper:#FFFDF9; --ink:#1C1917; --muted:#5E554D; --accent:#8B1E2D; --accent-ink:#FFFFFF;
+  --soft:#F3ECE4; --line:#E3D9CE; --mark:#FCE9B8;
+  --fs:26px;
+  --ui:"Mukta","Noto Sans Devanagari","Nirmala UI","Mangal",system-ui,sans-serif;
+  --read:"Noto Serif Devanagari","Noto Sans Devanagari","Nirmala UI","Mangal",serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#1A1714; --ink:#F5EFE6; --muted:#BFB4A8; --accent:#F0A7A0; --accent-ink:#1A1714;
+    --soft:#2A2521; --line:#3A332D; --mark:#4A3A1C;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1A1714; --ink:#F5EFE6; --muted:#BFB4A8; --accent:#F0A7A0; --accent-ink:#1A1714;
+  --soft:#2A2521; --line:#3A332D; --mark:#4A3A1C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 90px)}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font-family:var(--ui);-webkit-text-size-adjust:100%}
+button{font-family:var(--ui);color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:4px solid var(--accent);outline-offset:3px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--paper);
+  border-bottom:2px solid var(--line);display:flex;align-items:center;gap:8px;padding:10px 12px}
+.where{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:var(--soft);
+  border:2px solid var(--line);border-radius:16px;padding:8px 16px;min-height:60px;text-align:left}
+.where .t{font-size:26px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.where .chev{font-size:22px;color:var(--accent);font-weight:700}
+.tool{min-width:60px;min-height:60px;border-radius:16px;border:2px solid var(--line);background:var(--soft);
+  font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 8px}
+
+/* reading */
+main{max-width:40em;margin:0 auto;padding:20px 22px 150px}
+.head{display:flex;align-items:flex-end;gap:16px;margin:8px 0 24px;padding-bottom:16px;border-bottom:2px solid var(--line)}
+.head .num{font-family:var(--read);font-size:96px;line-height:.9;font-weight:700;color:var(--accent)}
+.head .bk{font-size:24px;line-height:1.3;color:var(--muted);padding-bottom:10px}
+.v{font-family:var(--read);font-size:var(--fs);line-height:1.85;margin:0 0 .55em;padding:2px 6px;border-radius:10px;transition:background .4s}
+.v sup{font-family:var(--ui);font-size:.62em;font-weight:700;color:var(--accent);vertical-align:.45em;margin-right:.3em}
+.end{margin:40px 0 0;text-align:center;color:var(--muted);font-size:22px}
+
+/* bottom bar */
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--paper);border-top:2px solid var(--line);
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;justify-content:center}
+.nav{flex:1;max-width:220px;min-height:68px;border-radius:18px;border:2px solid var(--line);background:var(--soft);font-size:24px;font-weight:700}
+.nav.next{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.nav:disabled{opacity:.35;cursor:default}
+.listen{min-width:80px;min-height:68px;border-radius:18px;border:2px solid var(--line);background:var(--soft);font-size:18px;font-weight:700;line-height:1.1;padding:4px 10px}
+.listen .ic{display:block;font-size:26px}
+.listen.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* chooser */
+.pick{position:fixed;inset:0;z-index:20;background:var(--paper);display:none;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.pick.open{display:flex}
+.pick-top{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:2px solid var(--line)}
+.pick-top h2{flex:1;margin:0;font-size:28px;line-height:1.2}
+.back{min-height:60px;padding:0 18px;border-radius:16px;border:2px solid var(--line);background:var(--soft);font-size:22px;font-weight:700}
+.crumb{padding:10px 18px 0;font-size:20px;color:var(--muted)}
+.pick-body{flex:1;overflow-y:auto;padding:14px 14px 30px;-webkit-overflow-scrolling:touch}
+.sec{font-size:22px;color:var(--accent);font-weight:700;margin:18px 4px 10px}
+.sec:first-child{margin-top:4px}
+.grid{display:grid;gap:10px}
+.grid.books{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.grid.nums{grid-template-columns:repeat(auto-fill,minmax(76px,1fr))}
+.g{min-height:68px;border-radius:14px;border:2px solid var(--line);background:var(--soft);font-size:23px;font-weight:700;padding:6px 8px;line-height:1.25}
+.g.cur{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.whole{width:100%;min-height:68px;border-radius:14px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-size:23px;font-weight:700;margin-bottom:16px}
+.about-link{display:block;margin:30px auto 0;background:none;border:none;color:var(--muted);font-size:18px;text-decoration:underline;min-height:48px}
+.about{font-size:19px;line-height:1.7;max-width:36em}
+.about p{margin:0 0 1em}
+
+/* loading + toast */
+.loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:var(--paper);z-index:30;font-size:26px;text-align:center;padding:20px}
+.loading .cross{font-size:64px;color:var(--accent);font-family:var(--read)}
+.toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:25;
+  background:var(--ink);color:var(--paper);font-size:20px;line-height:1.5;padding:14px 20px;border-radius:16px;max-width:min(92vw,30em);display:none;text-align:center}
+.toast.show{display:block}
+/* highlights */
+:root{--hy:#FFE58A;--hg:#BFE8B0;--hb:#BCDDF7;--hp:#F8C6D4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hy:#6B5A1E;--hg:#2F5530;--hb:#2A4A66;--hp:#5E2F40}}
+:root[data-theme="dark"]{--hy:#6B5A1E;--hg:#2F5530;--hb:#2A4A66;--hp:#5E2F40}
+.v{cursor:pointer}
+.v.c-y{background:var(--hy)}.v.c-g{background:var(--hg)}.v.c-b{background:var(--hb)}.v.c-p{background:var(--hp)}
+.v.hl{background:var(--mark);outline:3px solid var(--accent)}
+.v.sel{outline:3px dashed var(--accent);outline-offset:2px}
+.sheet-bg{position:fixed;inset:0;z-index:22;background:rgba(0,0,0,.35);display:none}
+.sheet-bg.open{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:23;background:var(--paper);border-top:2px solid var(--line);border-radius:22px 22px 0 0;
+  padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .2s;max-width:640px;margin:0 auto}
+.sheet.open{transform:none}
+.sheet h3{margin:0 0 14px;font-size:24px;text-align:center}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.sw{min-height:76px;border-radius:18px;border:3px solid var(--line);font-size:20px;font-weight:700;color:var(--ink)}
+.sw.on{border-color:var(--ink);border-width:4px}
+.sw.y{background:var(--hy)}.sw.g{background:var(--hg)}.sw.b{background:var(--hb)}.sw.p{background:var(--hp)}
+.sheet-row{display:flex;gap:12px}
+.sheet-row button{flex:1;min-height:64px;border-radius:16px;border:2px solid var(--line);background:var(--soft);font-size:22px;font-weight:700}
+.mine{width:100%;min-height:68px;border-radius:14px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-size:23px;font-weight:700;margin-bottom:6px}
+.hlitem{display:block;width:100%;text-align:left;border-radius:14px;border:2px solid var(--line);padding:12px 14px;margin-bottom:10px;background:var(--soft)}
+.hlitem .ref{font-size:21px;font-weight:700;color:var(--accent);display:block;margin-bottom:4px}
+.hlitem .tx{font-family:var(--read);font-size:20px;line-height:1.6;display:block;padding:4px 8px;border-radius:8px}
+.empty{font-size:21px;line-height:1.7;color:var(--muted);text-align:center;padding:30px 10px}
+@media (prefers-reduced-motion:reduce){.sheet{transition:none}}
+@media (prefers-reduced-motion:reduce){.v{transition:none}}
+@media (max-width:420px){.where .t{font-size:23px}.tool{min-width:54px}.head .num{font-size:80px}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div class="cross">✝</div><div>बाइबल खोल्दै छ…</div></div>
+
+<header class="top">
+  <button class="where" id="whereBtn" aria-label="पुस्तक, अध्याय वा पद छान्नुहोस्">
+    <span class="t" id="whereText">…</span><span class="chev">▾</span>
+  </button>
+  <button class="tool" id="smaller" aria-label="अक्षर सानो गर्नुहोस्">अ−</button>
+  <button class="tool" id="bigger" aria-label="अक्षर ठूलो गर्नुहोस्">अ+</button>
+  <button class="tool" id="themeBtn" aria-label="उज्यालो वा अँध्यारो">◐</button>
+</header>
+
+<main id="reader"></main>
+
+<nav class="bottom">
+  <button class="nav" id="prevBtn">◀ अघिल्लो</button>
+  <button class="listen" id="listenBtn"><span class="ic">🔊</span><span id="listenLbl">सुन्नुहोस्</span></button>
+  <button class="nav next" id="nextBtn">अर्को ▶</button>
+</nav>
+
+<div class="pick" id="pick" role="dialog" aria-modal="true">
+  <div class="pick-top">
+    <button class="back" id="pickBack">← फर्कनुहोस्</button>
+    <h2 id="pickTitle">पुस्तक छान्नुहोस्</h2>
+  </div>
+  <div class="crumb" id="crumb"></div>
+  <div class="pick-body" id="pickBody"></div>
+</div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <h3 id="sheetTitle">रङ लगाउनुहोस्</h3>
+  <div class="swatches">
+    <button class="sw y" data-col="y">पहेँलो</button>
+    <button class="sw g" data-col="g">हरियो</button>
+    <button class="sw b" data-col="b">निलो</button>
+    <button class="sw p" data-col="p">गुलाबी</button>
+  </div>
+  <div class="sheet-row">
+    <button id="hlRemove">रङ हटाउनुहोस्</button>
+    <button id="hlCancel">बन्द</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+
+<script>
+(function(){
+"use strict";
+var NAMES=["उत्पत्ति","प्रस्थान","लेवी","गन्ती","व्यवस्था","यहोशू","न्यायकर्ता","रूथ","१ शमूएल","२ शमूएल","१ राजा","२ राजा","१ इतिहास","२ इतिहास","एज्रा","नहेम्याह","एस्तर","अय्यूब","भजनसंग्रह","हितोपदेश","उपदेशक","श्रेष्ठगीत","यशैया","यर्मिया","विलाप","इजकिएल","दानिएल","होशे","योएल","आमोस","ओबदिया","योना","मीका","नहूम","हबकूक","सपन्याह","हाग्गै","जकरिया","मलाकी","मत्ती","मर्कूस","लूका","यूहन्ना","प्रेरित","रोमी","१ कोरिन्थी","२ कोरिन्थी","गलाती","एफिसी","फिलिप्पी","कलस्सी","१ थेसलोनिकी","२ थेसलोनिकी","१ तिमोथी","२ तिमोथी","तीतस","फिलेमोन","हिब्रू","याकूब","१ पत्रुस","२ पत्रुस","१ यूहन्ना","२ यूहन्ना","३ यूहन्ना","यहूदा","प्रकाश"];
+var ND="०१२३४५६७८९";
+function np(n){return String(n).replace(/[0-9]/g,function(d){return ND[d]});}
+function $(id){return document.getElementById(id);}
+function load(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+var BIBLE=null;
+var pos=load("nb-pos",{b:0,c:0,v:1});
+var fs=load("nb-fs",26);
+var theme=load("nb-theme",null);
+var HL=load("nb-hl",{});
+function key(b,c,v){return b+":"+c+":"+v;}
+
+function applyFs(){document.documentElement.style.setProperty("--fs",fs+"px");}
+function applyTheme(){if(theme)document.documentElement.setAttribute("data-theme",theme);else document.documentElement.removeAttribute("data-theme");}
+applyFs();applyTheme();
+
+var toastT;
+function toast(msg,ms){var t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("show")},ms||3500);}
+
+function verses(b,c){
+  var arr=BIBLE[b][c],out=[],n=1;
+  for(var i=0;i<arr.length;i++){var x=arr[i];if(typeof x==="string"){out.push([n,x]);n++;}else{out.push([x[0],x[1]]);n=x[0]+1;}}
+  return out;
+}
+
+/* ---------- reading ---------- */
+function render(scrollTo){
+  stopSpeech();
+  var b=pos.b,c=pos.c,vs=verses(b,c);
+  $("whereText").textContent=NAMES[b]+" "+np(c+1);
+  document.title=NAMES[b]+" "+np(c+1)+" · पवित्र बाइबल";
+  var h='<div class="head"><div class="num">'+np(c+1)+'</div><div class="bk">'+NAMES[b]+'<br>अध्याय '+np(c+1)+'</div></div>';
+  for(var i=0;i<vs.length;i++){var col=HL[key(b,c,vs[i][0])];h+='<p class="v'+(col?' c-'+col:'')+'" id="v'+vs[i][0]+'" data-v="'+vs[i][0]+'"><sup>'+np(vs[i][0])+'</sup>'+esc(vs[i][1])+'</p>';}
+  var nx=nextOf(b,c);
+  h+='<p class="end">'+(nx?'अध्याय सकियो · अर्को: '+NAMES[nx[0]]+' '+np(nx[1]+1):'प्रकाशको पुस्तक सकियो')+'</p>';
+  $("reader").innerHTML=h;
+  $("prevBtn").disabled=!prevOf(b,c);
+  $("nextBtn").disabled=!nx;
+  if(scrollTo&&scrollTo>1){var el=$("v"+scrollTo);if(el){el.scrollIntoView({block:"start"});flash(el);}}
+  else window.scrollTo(0,0);
+  pos.v=scrollTo||1;save("nb-pos",pos);
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function flash(el){el.classList.add("hl");setTimeout(function(){el.classList.remove("hl")},2200);}
+function prevOf(b,c){if(c>0)return[b,c-1];if(b>0)return[b-1,BIBLE[b-1].length-1];return null;}
+function nextOf(b,c){if(c<BIBLE[b].length-1)return[b,c+1];if(b<BIBLE.length-1)return[b+1,0];return null;}
+function go(t,v){if(!t)return;pos={b:t[0],c:t[1],v:v||1};render(v);}
+
+/* remember the verse at the top of the screen */
+var ticking=false;
+window.addEventListener("scroll",function(){
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(function(){
+    ticking=false;
+    var top=$("whereBtn").getBoundingClientRect().bottom+12;
+    var ps=document.querySelectorAll(".v");
+    for(var i=0;i<ps.length;i++){if(ps[i].getBoundingClientRect().bottom>top){pos.v=+ps[i].dataset.v;break;}}
+    save("nb-pos",pos);
+  });
+},{passive:true});
+
+/* ---------- controls ---------- */
+$("prevBtn").onclick=function(){go(prevOf(pos.b,pos.c));};
+$("nextBtn").onclick=function(){go(nextOf(pos.b,pos.c));};
+$("bigger").onclick=function(){keepPlace(function(){fs=Math.min(fs+3,50);});};
+$("smaller").onclick=function(){keepPlace(function(){fs=Math.max(fs-3,17);});};
+function keepPlace(fn){var v=pos.v;fn();applyFs();save("nb-fs",fs);var el=$("v"+v);if(el&&v>1)el.scrollIntoView({block:"start"});toast("अक्षरको आकार: "+np(fs),1200);}
+$("themeBtn").onclick=function(){
+  var dark=theme?theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  theme=dark?"light":"dark";applyTheme();save("nb-theme",theme);
+  toast(theme==="dark"?"अँध्यारो रङ":"उज्यालो रङ",1200);
+};
+
+/* ---------- chooser: book → chapter → verse ---------- */
+var step=0,selB=0,selC=0;
+function openPick(){selB=pos.b;selC=pos.c;showBooks();$("pick").classList.add("open");document.body.style.overflow="hidden";}
+function closePick(){$("pick").classList.remove("open");document.body.style.overflow="";}
+$("whereBtn").onclick=openPick;
+$("pickBack").onclick=function(){if(step===0)closePick();else if(step===1||step===3)showBooks();else showChapters(selB);};
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("pick").classList.contains("open"))$("pickBack").onclick();});
+
+function setPick(s,title,crumb,html){
+  step=s;$("pickTitle").textContent=title;$("crumb").textContent=crumb;
+  $("pickBack").textContent=s===0?"✕ बन्द":"← फर्कनुहोस्";
+  var body=$("pickBody");body.innerHTML=html;body.scrollTop=0;
+  var cur=body.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+}
+function showBooks(){
+  var h='<button class="mine" id="mineBtn">★ मेरा रङ लगाएका पदहरू ('+np(Object.keys(HL).length)+')</button><div class="sec">पुरानो नियम</div><div class="grid books">';
+  for(var i=0;i<66;i++){
+    if(i===39)h+='</div><div class="sec">नयाँ नियम</div><div class="grid books">';
+    h+='<button class="g'+(i===pos.b?' cur':'')+'" data-b="'+i+'">'+NAMES[i]+'</button>';
+  }
+  h+='</div><button class="about-link" id="aboutLink">यो बाइबलको बारेमा</button>';
+  setPick(0,"पुस्तक छान्नुहोस्","",h);
+  $("pickBody").querySelectorAll("[data-b]").forEach(function(btn){btn.onclick=function(){showChapters(+btn.dataset.b);};});
+  $("aboutLink").onclick=showAbout;
+  $("mineBtn").onclick=showMine;
+}
+var ORDER=function(k){var p=k.split(":");return (+p[0])*1e6+(+p[1])*1e3+(+p[2]);};
+function showMine(){
+  var ks=Object.keys(HL).sort(function(a,b){return ORDER(a)-ORDER(b);});
+  var h='';
+  if(!ks.length)h='<div class="empty">अहिलेसम्म कुनै पदमा रङ लगाइएको छैन।<br>पढ्दा कुनै पदमा थिच्नुहोस्, अनि रङ छान्नुहोस्।</div>';
+  ks.forEach(function(k){
+    var p=k.split(":").map(Number),vs=verses(p[0],p[1]),t="";
+    for(var i=0;i<vs.length;i++)if(vs[i][0]===p[2]){t=vs[i][1];break;}
+    h+='<button class="hlitem" data-k="'+k+'"><span class="ref">'+NAMES[p[0]]+' '+np(p[1]+1)+':'+np(p[2])+'</span><span class="tx" style="background:var(--h'+HL[k]+')">'+esc(t)+'</span></button>';
+  });
+  setPick(3,"मेरा रङ लगाएका पदहरू","",h);
+  $("pickBody").querySelectorAll("[data-k]").forEach(function(btn){btn.onclick=function(){var p=btn.dataset.k.split(":").map(Number);closePick();go([p[0],p[1]],p[2]);};});
+}
+
+/* ---------- highlight sheet ---------- */
+var selEl=null;
+$("reader").addEventListener("click",function(e){
+  var el=e.target.closest(".v");if(!el||speaking)return;
+  selEl=el;el.classList.add("sel");
+  var v=+el.dataset.v,cur=HL[key(pos.b,pos.c,v)];
+  $("sheetTitle").textContent=NAMES[pos.b]+" "+np(pos.c+1)+":"+np(v)+" मा रङ लगाउनुहोस्";
+  document.querySelectorAll(".sw").forEach(function(s){s.classList.toggle("on",s.dataset.col===cur);});
+  $("hlRemove").style.display=cur?"":"none";
+  $("sheetBg").classList.add("open");$("sheet").classList.add("open");
+});
+function closeSheet(){$("sheetBg").classList.remove("open");$("sheet").classList.remove("open");if(selEl)selEl.classList.remove("sel");selEl=null;}
+function setColor(col){
+  if(!selEl)return;var k=key(pos.b,pos.c,+selEl.dataset.v);
+  selEl.classList.remove("c-y","c-g","c-b","c-p");
+  if(col){HL[k]=col;selEl.classList.add("c-"+col);}else delete HL[k];
+  save("nb-hl",HL);closeSheet();toast(col?"रङ लगाइयो":"रङ हटाइयो",1200);
+}
+document.querySelectorAll(".sw").forEach(function(s){s.onclick=function(){setColor(s.dataset.col);};});
+$("hlRemove").onclick=function(){setColor(null);};
+$("hlCancel").onclick=closeSheet;$("sheetBg").onclick=closeSheet;
+function showChapters(b){
+  selB=b;var n=BIBLE[b].length;
+  if(n===1){showVerses(b,0);return;}
+  var h='<div class="grid nums">';
+  for(var i=0;i<n;i++)h+='<button class="g'+(b===pos.b&&i===pos.c?' cur':'')+'" data-c="'+i+'">'+np(i+1)+'</button>';
+  h+='</div>';
+  setPick(1,"अध्याय छान्नुहोस्",NAMES[b],h);
+  $("pickBody").querySelectorAll("[data-c]").forEach(function(btn){btn.onclick=function(){showVerses(b,+btn.dataset.c);};});
+}
+function showVerses(b,c){
+  selB=b;selC=c;var vs=verses(b,c);
+  var h='<button class="whole" id="wholeBtn">अध्यायको सुरुबाट पढ्नुहोस्</button><div class="grid nums">';
+  for(var i=0;i<vs.length;i++)h+='<button class="g" data-v="'+vs[i][0]+'">'+np(vs[i][0])+'</button>';
+  h+='</div>';
+  setPick(BIBLE[b].length===1?3:2,"पद छान्नुहोस्",NAMES[b]+" "+np(c+1),h);
+  $("wholeBtn").onclick=function(){closePick();go([b,c],1);};
+  $("pickBody").querySelectorAll("[data-v]").forEach(function(btn){btn.onclick=function(){closePick();go([b,c],+btn.dataset.v);};});
+}
+function showAbout(){
+  setPick(3,"यो बाइबलको बारेमा","",
+  '<div class="about"><p><b>पवित्र बाइबल</b> — Unlocked Literal Bible, नेपाली अनुवाद।</p>'+
+  '<p>Copyright © 2019 Door43 World Missions Community. अनुवाद: Door43 World Missions Community र नेपाली सहयोगीहरू।</p>'+
+  '<p>यो अनुवाद Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) अनुमतिपत्र अन्तर्गत उपलब्ध छ। पाठ eBible.org बाट लिइएको हो र यसमा कुनै परिवर्तन गरिएको छैन।</p>'+
+  '<p>यस एपमा कुनै विज्ञापन छैन।</p></div>');
+}
+
+/* ---------- listen (read aloud) ---------- */
+var speaking=false,voice=null;
+function pickVoice(){
+  if(!("speechSynthesis" in window))return;
+  var vs=speechSynthesis.getVoices();
+  voice=vs.find(function(v){return /^ne/i.test(v.lang);})||vs.find(function(v){return /^hi/i.test(v.lang);})||null;
+}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function setListen(on){speaking=on;$("listenBtn").classList.toggle("on",on);$("listenLbl").textContent=on?"रोक्नुहोस्":"सुन्नुहोस्";}
+var NATIVE=window.AndroidTTS||null;
+function stopSpeech(){if(speaking){speaking=false;try{if(NATIVE)NATIVE.stop();else speechSynthesis.cancel();}catch(e){}setListen(false);document.querySelectorAll(".v.hl").forEach(function(e){e.classList.remove("hl")});}}
+function speakFrom(v){
+  if(!speaking)return;
+  var el=$("v"+v);
+  if(!el){ // end of chapter: go on to the next one
+    var nx=nextOf(pos.b,pos.c);
+    if(!nx){setListen(false);return;}
+    speaking=false;go(nx,1);setListen(true);speakFrom(1);return;
+  }
+  document.querySelectorAll(".v.hl").forEach(function(e){e.classList.remove("hl")});
+  el.classList.add("hl");el.scrollIntoView({block:"center",behavior:"smooth"});
+  var txt=el.textContent.replace(/^[०-९]+/,"");
+  var next0=function(){if(!speaking)return;var nxtEl=el.nextElementSibling;speakFrom(nxtEl&&nxtEl.dataset.v?+nxtEl.dataset.v:-1);};
+  if(NATIVE){
+    window.ttsDone=next0;
+    window.ttsError=function(){setListen(false);el.classList.remove("hl");noVoiceMsg();};
+    NATIVE.speak(txt);return;
+  }
+  var u=new SpeechSynthesisUtterance(txt);
+  u.lang=voice?voice.lang:"ne-NP";if(voice)u.voice=voice;u.rate=0.9;
+  var next=function(){if(!speaking)return;var nxtEl=el.nextElementSibling;speakFrom(nxtEl&&nxtEl.dataset.v?+nxtEl.dataset.v:-1);};
+  u.onend=next;
+  u.onerror=function(e){if(e.error==="interrupted"||e.error==="canceled")return;setListen(false);el.classList.remove("hl");noVoiceMsg();};
+  speechSynthesis.speak(u);
+}
+function noVoiceMsg(){toast("यो फोनमा नेपाली आवाज भेटिएन। Settings → Text-to-speech मा गएर Nepali आवाज डाउनलोड गर्नुहोस्।",7000);}
+$("listenBtn").onclick=function(){
+  if(speaking){stopSpeech();return;}
+  if(NATIVE){if(!NATIVE.available()){noVoiceMsg();return;}setListen(true);speakFrom(pos.v||1);return;}
+  if(!("speechSynthesis" in window)){noVoiceMsg();return;}
+  pickVoice();
+  try{speechSynthesis.cancel();}catch(e){}
+  setListen(true);speakFrom(pos.v||1);
+};
+
+/* Android back button */
+window.appBack=function(){
+  if($("sheet").classList.contains("open")){closeSheet();return true;}
+  if($("pick").classList.contains("open")){$("pickBack").onclick();return true;}
+  return false;
+};
+
+/* ---------- start ---------- */
+async function boot(){
+  try{
+    var res=await fetch("bible.json");if(!res.ok)throw new Error("load");BIBLE=await res.json();
+    if(!BIBLE[pos.b]||!BIBLE[pos.b][pos.c])pos={b:0,c:0,v:1};
+    render(pos.v);
+    $("loading").remove();
+  }catch(e){
+    $("loading").innerHTML='<div class="cross">✝</div><div>बाइबल खोल्न सकिएन। पहिलो पटक खोल्दा इन्टरनेट चाहिन्छ। इन्टरनेट जोडेर फेरि खोल्नुहोस्।</div>';
+  }
+}
+boot();
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}
+})();
+</script>
+</body>
+</html>
