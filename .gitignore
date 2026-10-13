@@ -3,3 +3,11 @@ build/
 local.properties
 .idea/
 *.iml
+
+# Never commit signing keys or their passwords
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+*.p12
+*.pem

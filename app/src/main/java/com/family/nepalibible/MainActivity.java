@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -13,6 +14,8 @@ import android.webkit.WebViewClient;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
+
+    private static final String APP_ROOT = "file:///android_asset/";
 
     private WebView web;
     private TextToSpeech tts;
@@ -30,14 +33,25 @@ public class MainActivity extends Activity {
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);          // saves her place, text size and highlights
-        s.setAllowFileAccess(true);
+        // Security: the app only ever shows its own built-in files.
+        // (file:///android_asset/ still works with these switched off.)
+        s.setAllowFileAccess(false);
+        s.setAllowContentAccess(false);
+        s.setGeolocationEnabled(false);
+        s.setSaveFormData(false);
         s.setTextZoom(100);                    // the app has its own big-text buttons
 
-        web.setWebViewClient(new WebViewClient());
+        web.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                // Block any navigation away from the app's own pages.
+                return !request.getUrl().toString().startsWith(APP_ROOT);
+            }
+        });
         web.addJavascriptInterface(new TtsBridge(), "AndroidTTS");
 
         setupTts();
-        web.loadUrl("file:///android_asset/index.html");
+        web.loadUrl(APP_ROOT + "index.html");
     }
 
     private void setupTts() {
@@ -68,6 +82,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void speak(String text) {
+            if (text == null || text.length() > 4000) return;   // only short verse text is accepted
             if (!ttsReady) { js("window.ttsError&&window.ttsError()"); return; }
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, new Bundle(), "v" + (counter++));
         }
